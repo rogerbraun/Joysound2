@@ -13,7 +13,7 @@ describe Dumper do
   it "should read a page and extract a song out of it" do
     VCR.use_cassette("first_kiss") do
       page = "http://joysound.com/ex/search/song.htm?gakkyokuId=283053"
-      song = Dumper.extract_song(page)
+      song = Dumper.extract_song(open(page).read)
       song[:title].must_equal("FIRST KISS")
       song[:artist].must_equal("あぁ!")
       song[:genre].must_equal("J-POP/グループ")
