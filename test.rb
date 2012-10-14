@@ -3,6 +3,7 @@ require "minitest/spec"
 require "minitest/autorun"
 
 require_relative "dumper.rb"
+Bundler.require(:default, :test)
 
 VCR.configure do |c|
   c.cassette_library_dir = 'fixtures/vcr_cassettes'
@@ -18,6 +19,16 @@ describe Dumper do
       song[:artist].must_equal("あぁ!")
       song[:genre].must_equal("J-POP/グループ")
       song[:wii_number].must_equal("31864")
+      song[:utaidashi].must_equal("どうして 恋人になれないの?")
+    end
+
+    VCR.use_cassette("シェラフィータ") do
+      page = "http://joysound.com/ex/search/song.htm?gakkyokuId=398316"
+      song = Dumper.extract_song(open(page).read)
+      song[:title].must_equal("シェラフィータ")
+      song[:artist].must_equal("ZABADAK")
+      song[:genre].must_equal("J-POP/グループ")
+      song[:wii_number].must_equal("169073")
     end
   end
 
@@ -48,6 +59,24 @@ describe Dumper do
       page = "http://joysound.com/ex/search/artist.htm?artistId=3917&wiiall=1"
       songs = Dumper.extract_artist_pages(page)
       songs.count.must_equal(156)
+    end
+  end
+
+  it "should take a page with links to artist pages and extract songs from all artists on this page" do
+    VCR.use_cassette("z_page") do
+      page = "http://joysound.com/ex/search/artistsearchindex.htm?searchType=02&searchWordType=2&charIndexKbn=02&charIndex1=36"
+      res = Dumper.extract_artists_page(page)
+      songs = res[:songs]
+      songs.map{|song| song[:artist]}.uniq.count.must_equal(5)
+    end
+  end
+
+  it "should take the first character page and extract all songs from all artists on all pages" do
+    VCR.use_cassette("z_page_complete") do
+      page = "http://joysound.com/ex/search/artistsearchindex.htm?searchType=02&searchWordType=2&charIndexKbn=02&charIndex1=36"
+      songs = Dumper.extract_artists_pages(page)
+      songs.map{|song| song[:artist]}.uniq.count.must_equal(39)
+      puts songs
     end
   end
 end

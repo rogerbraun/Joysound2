@@ -6,5 +6,7 @@ gem 'data_mapper'
 gem 'pry'
 gem 'typhoeus'
 
-gem 'vcr'
-gem 'webmock'
+group :test do
+  gem 'vcr'
+  gem 'webmock'
+end
