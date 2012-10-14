@@ -76,7 +76,6 @@ describe Dumper do
       page = "http://joysound.com/ex/search/artistsearchindex.htm?searchType=02&searchWordType=2&charIndexKbn=02&charIndex1=36"
       songs = Dumper.extract_artists_pages(page)
       songs.map{|song| song[:artist]}.uniq.count.must_equal(39)
-      puts songs
     end
   end
 end
